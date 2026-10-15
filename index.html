@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0b0b">
+<title>Intelix Stealer</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0b0b;--panel:#111;--line:#292929;--muted:#888;--red:#f04444}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{background:var(--bg);color:#f4f4f4;font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh;overflow-x:hidden}
+body.locked{overflow:hidden}
+
+/* СНЕГ - ПОВЕРХ ВСЕГО */
+#snowfall{position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden}
+.snowflake{position:absolute;top:-20px;color:#fff;opacity:.35;user-select:none;pointer-events:none;font-family:arial;will-change:transform;animation:fall linear infinite}
+@keyframes fall{
+  0%{transform:translateY(-20px) translateX(0)}
+  100%{transform:translateY(105vh) translateX(var(--drift,20px))}
+}
+
+/* ЭКРАН ВХОДА */
+#entryScreen{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:10000;cursor:pointer;transition:opacity .6s ease;padding:20px}
+#entryScreen.hidden{opacity:0;pointer-events:none}
+#entryScreen .hint{color:#666;font-size:clamp(12px,3.5vw,16px);letter-spacing:.2em;text-transform:uppercase;animation:pulse 2s ease-in-out infinite;text-align:center}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ОБОЛОЧКА */
+.shell{width:min(1450px,calc(100% - 48px));min-height:calc(100vh - 48px);margin:24px auto;border:1px solid #282828;background:#101010;position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(320px,.85fr) minmax(0,1.15fr);z-index:2}
+.shell:before{content:"";position:absolute;inset:0 0 0 43%;pointer-events:none;opacity:.65;background:
+radial-gradient(ellipse at 49% 14%,#aaa 0 1px,transparent 1.5px),
+radial-gradient(ellipse at 51% 38%,#777 0 1px,transparent 1.5px),
+radial-gradient(ellipse at 45% 65%,#aaa 0 1px,transparent 1.5px),
+radial-gradient(ellipse at 64% 18%,#888 0 1px,transparent 1.5px);
+background-size:7px 9px,9px 11px,8px 10px,11px 13px;
+mask-image:linear-gradient(90deg,transparent,#000 18%,#000 92%,transparent)}
+
+/* ЛЕВАЯ ЧАСТЬ */
+.left{position:relative;z-index:1;padding:clamp(24px,6vw,92px);display:flex;flex-direction:column;justify-content:center;min-height:690px}
+.mark{width:58px;height:58px;border:5px solid white;border-radius:50%;position:relative;margin-bottom:58px;flex-shrink:0}
+.mark:after{content:"";position:absolute;width:58px;height:5px;background:#fff;left:-5px;top:21px;transform:rotate(-33deg);border-radius:4px}
+.eyebrow{color:#a1a1a1;letter-spacing:.2em;text-transform:uppercase;font-size:10px;margin:0 0 12px}
+h1{font-size:clamp(28px,5vw,48px);letter-spacing:-.045em;line-height:1.05;margin:0 0 16px;font-weight:550}
+
+.download-btn{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:370px;padding:16px 18px;color:#fff;background:var(--red);text-decoration:none;font-weight:600;transition:background .2s,transform .2s;margin-bottom:12px;font-size:clamp(13px,3.6vw,14px)}
+.download-btn:hover{background:#d93636;transform:translateY(-2px)}
+.download-btn span:last-child{font-size:20px}
+
+.project-link{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:370px;padding:16px 18px;color:#111;background:#f5f5f5;text-decoration:none;font-weight:600;transition:background .2s,transform .2s;margin-bottom:12px;font-size:clamp(13px,3.6vw,14px)}
+.project-link:hover{background:#dcdcdc;transform:translateY(-2px)}
+.project-link span:last-child{font-size:20px}
+
+.backup-link{display:block;font-size:11px;color:#666;text-decoration:none;max-width:370px;padding:6px 0;transition:color .18s;word-break:break-all}
+.backup-link:hover{color:#f04444}
+.backup-link::before{content:"Резерв на случай бана - ";color:#555}
+
+/* ПРАВАЯ ЧАСТЬ */
+.right{position:relative;z-index:1;display:flex;align-items:center;padding:clamp(20px,5vw,72px)}
+.glass{width:100%;max-width:600px;margin-left:auto;background:rgba(12,12,12,.38);border:1px solid rgba(255,255,255,.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:clamp(18px,3vw,38px);box-shadow:0 20px 80px #0006}
+.board-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px}
+.board-head h2{font-size:clamp(16px,4vw,19px);font-weight:550;letter-spacing:-.02em;margin:0 0 6px}
+.sub{color:#8c8c8c;font-size:clamp(11px,3vw,12px);margin:0;max-width:320px}
+.status{font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,.15);padding:6px 8px;color:#bdbdbd;white-space:nowrap;background:rgba(255,255,255,.03);flex-shrink:0}
+
+/* ВКЛАДКИ */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:12px}
+.tab{padding:8px 14px;font-size:clamp(11px,3vw,12px);color:#9a9a9a;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .18s;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.tab:hover{color:#e0e0e0;background:rgba(255,255,255,.06)}
+.tab.active{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);font-weight:600}
+
+/* ПАНЕЛЬ СПИСКА */
+.big-panel{border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);padding:clamp(14px,3vw,22px);min-height:280px;max-height:340px;overflow-y:auto;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);-webkit-overflow-scrolling:touch}
+.big-panel::-webkit-scrollbar{width:6px}
+.big-panel::-webkit-scrollbar-track{background:transparent}
+.big-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.big-panel::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
+.panel-content{display:none}
+.panel-content.active{display:block}
+.panel-content h3{font-size:clamp(13px,3.6vw,15px);font-weight:550;margin:0 0 16px;color:#fff;letter-spacing:.02em}
+.panel-content ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
+.panel-content li{font-size:clamp(11px,3.2vw,12px);color:#a8a8a8;padding:5px 0;line-height:1.5;word-break:break-word}
+.panel-content li::before{content:"•";color:#666;margin-right:8px}
+
+.disclaimer{margin-top:20px;border-left:2px solid var(--red);padding:12px 14px;background:rgba(240,68,68,.05);color:#f26b6b;font-size:clamp(10px,3vw,11px);line-height:1.6}
+footer{position:relative;z-index:2;grid-column:1/-1;border-top:1px solid #282828;padding:17px 24px;text-align:center;color:#666;font-size:clamp(10px,2.8vw,11px);background:#0b0b0b}
+
+/* ===== АДАПТИВ ===== */
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr;width:calc(100% - 20px);margin:10px auto;min-height:calc(100vh - 20px)}
+  .shell:before{inset:30% 0 0 0;opacity:.35}
+  .left{min-height:auto;padding:32px 22px 20px;align-items:flex-start}
+  .mark{margin-bottom:28px;width:44px;height:44px;border-width:4px}
+  .mark:after{width:44px;height:4px;left:-4px;top:16px}
+  .right{padding:16px 14px 24px}
+  .glass{margin:0 auto;padding:18px 16px}
+  .board-head{flex-direction:column;gap:10px;margin-bottom:16px}
+  .status{align-self:flex-start}
+  .big-panel{max-height:none;min-height:200px}
+  .panel-content ul{grid-template-columns:1fr 1fr}
+  footer{padding:14px 16px}
+}
+
+@media(max-width:480px){
+  .shell{border-radius:0;border-left:none;border-right:none;width:100%;margin:0}
+  .left{padding:26px 18px 16px}
+  .mark{margin-bottom:22px;width:38px;height:38px;border-width:3px}
+  .mark:after{width:38px;height:3px;left:-3px;top:14px}
+  h1{margin-bottom:12px}
+  .intro{margin-bottom:20px}
+  .right{padding:14px 12px 20px}
+  .glass{padding:16px 14px}
+  .tabs{gap:4px;padding-bottom:10px;margin-bottom:12px}
+  .tab{padding:6px 10px;font-size:11px;flex:1 1 calc(50% - 4px);text-align:center}
+  .big-panel{padding:14px;min-height:180px}
+  .panel-content ul{grid-template-columns:1fr;gap:4px}
+  .panel-content li{padding:3px 0}
+  footer{padding:12px 14px}
+  .disclaimer{padding:10px 12px}
+}
+</style>
+</head>
+<body class="locked">
+
+<div id="snowfall"></div>
+
+<div id="entryScreen">
+  <div class="hint">нажмите в любом месте чтобы войти</div>
+</div>
+
+<audio id="bgMusic" loop>
+  <source src="https://dl.dropboxusercontent.com/scl/fi/0gg6mxg0t1x9uhf3iyh3k/sektoR.mp3?rlkey=2s6atwpxbo5ttfdym3qc43ejw&raw=1" type="audio/mpeg">
+</audio>
+
+<main class="shell">
+  <section class="left">
+    <div class="mark" aria-hidden="true"></div>
+    <p class="eyebrow">Open course</p>
+    <h1>Intelix<br>Stealer</h1>
+    
+    <a class="download-btn" href="https://t.me/neverliet/100" target="_blank" rel="noopener noreferrer">
+      <span>Download intelix</span><span aria-hidden="true">↓</span>
+    </a>
+
+    <a class="project-link" href="https://t.me/neverliet" target="_blank" rel="noopener noreferrer">
+      <span>Открыть Telegram-канал</span><span aria-hidden="true">↗</span>
+    </a>
+    <a class="backup-link" href="https://t.me/neverliet_project" target="_blank" rel="noopener noreferrer">https://t.me/neverliet_project</a>
+  </section>
+  <section class="right">
+    <div class="glass">
+      <div class="board-head">
+        <div><h2>Панель возможностей</h2><p class="sub">Снизу написанно то что Intelix собирает на данный момент</p></div>
+        <span class="status">Tг @neverliet</span>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="messangers">Targets.Messangers</div>
+        <div class="tab" data-tab="game">Target Game</div>
+        <div class="tab" data-tab="browsers">Targets.Browsers</div>
+        <div class="tab" data-tab="applications">Targets.Applications</div>
+        <div class="tab" data-tab="vpn">Target VPN</div>
+      </div>
+
+      <div class="big-panel">
+        <div class="panel-content active" id="messangers">
+          <h3>Targets.Messangers</h3>
+          <ul>
+            <li>Discord (token)</li>
+            <li>Element</li>
+            <li>Icq</li>
+            <li>Jabber</li>
+            <li>MicroSIP</li>
+            <li>Outlook</li>
+            <li>Pidgin</li>
+            <li>Signal</li>
+            <li>Skype</li>
+            <li>Telegram (tdata)</li>
+            <li>Tox</li>
+            <li>Viber</li>
+          </ul>
+        </div>
+
+        <div class="panel-content" id="game">
+          <h3>Target Game</h3>
+          <ul>
+            <li>BattleNet</li>
+            <li>ElectronicArts</li>
+            <li>Epic</li>
+            <li>Growtopia</li>
+            <li>Minecraft</li>
+            <li>Riot</li>
+            <li>Roblox</li>
+            <li>Steam</li>
+            <li>Uplay</li>
+            <li>XBox</li>
+          </ul>
+        </div>
+
+        <div class="panel-content" id="browsers">
+          <h3>Targets.Browsers</h3>
+          <ul>
+            <li>Chromium</li>
+            <li>CryptoChromium</li>
+            <li>CryptoGecko</li>
+            <li>Gecko</li>
+            <li>UserAgentGenerator</li>
+          </ul>
+        </div>
+
+        <div class="panel-content" id="applications">
+          <h3>Targets.Applications</h3>
+          <ul>
+            <li>AnyDesk</li>
+            <li>CoreFtp</li>
+            <li>CyberDuck</li>
+            <li>DynDns</li>
+            <li>FileZilla</li>
+            <li>FoxMail</li>
+            <li>FTPCommander</li>
+            <li>FTPGetter</li>
+            <li>FTPNavigator</li>
+            <li>FTPRush</li>
+            <li>GithubGui</li>
+            <li>JetBrains</li>
+            <li>MobaXterm</li>
+            <li>Navicat</li>
+            <li>Ngrok</li>
+            <li>Nolp</li>
+            <li>Obs</li>
+            <li>Playlt</li>
+            <li>PuTTY</li>
+            <li>RDCMan</li>
+            <li>Rdp</li>
+            <li>Sunlogin</li>
+            <li>TeamSpeak</li>
+            <li>TeamViewer</li>
+            <li>TotalCommander</li>
+            <li>WinSCP</li>
+            <li>Xmanager</li>
+          </ul>
+        </div>
+
+        <div class="panel-content" id="vpn">
+          <h3>Target VPN</h3>
+          <ul>
+            <li>Cisco</li>
+            <li>CyberGhost</li>
+            <li>ExpressVPN</li>
+            <li>Hamachi</li>
+            <li>HideMyName</li>
+            <li>IpVanish</li>
+            <li>MullVad</li>
+            <li>NordVpn</li>
+            <li>OpenVpn</li>
+            <li>PIAVPN</li>
+            <li>ProtonVpn</li>
+            <li>Proxifier</li>
+            <li>RadminVPN</li>
+            <li>SoftEther</li>
+            <li>SurfShark</li>
+            <li>WireGuard</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="disclaimer">Есть уязвимость через API бота, так как ваш токен находится в коде. Некоторые могут взять ваш билд, достать из него API-токен бота, после чего пересылать все ваши логи себе и забирать их быстрее вас.<br><br>Как это контрить:<br>На каждого человека создавайте отдельного бота. Отправили человеку стилер, он его запустил, забрали лог и сразу удалили этого бота. Тогда, даже если кто-то достанет токен, он уже не сможет получать ваши логи.</div>
+    </div>
+  </section>
+  <footer>
+    Intelix Project
+  </footer>
+</main>
+
+<script>
+// ===== ВХОД =====
+const entry = document.getElementById('entryScreen');
+const music = document.getElementById('bgMusic');
+let entered = false;
+entry.addEventListener('click', () => {
+  if(entered) return;
+  entered = true;
+  entry.classList.add('hidden');
+  document.body.classList.remove('locked');
+  music.volume = 0.6;
+  music.play().catch(() => {
+    document.addEventListener('click', () => music.play().catch(()=>{}), {once:true});
+    document.addEventListener('keydown', () => music.play().catch(()=>{}), {once:true});
+  });
+});
+
+// ===== ВКЛАДКИ =====
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ===== СНЕГ =====
+(function(){
+  const container = document.getElementById('snowfall');
+  if(!container) return;
+  const isMobile = window.innerWidth < 800;
+  const COUNT = isMobile ? 18 : 28;
+  for(let i = 0; i < COUNT; i++){
+    const s = document.createElement('div');
+    s.className = 'snowflake';
+    const size = 4 + Math.random() * 6;
+    const left = Math.random() * 100;
+    const duration = 10 + Math.random() * 12;
+    const delay = -Math.random() * 20;
+    const drift = (Math.random() * 60 - 30) + 'px';
+    s.style.left = left + '%';
+    s.style.fontSize = size + 'px';
+    s.style.animationDuration = duration + 's';
+    s.style.animationDelay = delay + 's';
+    s.style.setProperty('--drift', drift);
+    s.style.opacity = (0.15 + Math.random() * 0.35).toFixed(2);
+    s.textContent = '❄';
+    container.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
